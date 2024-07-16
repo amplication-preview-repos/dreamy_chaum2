@@ -1,0 +1,72 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Review {
+  id               String          @id @default(cuid())
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  rating           Int?
+  comment          String?
+  user             User?           @relation(fields: [userId], references: [id])
+  userId           String?
+  serviceListing   ServiceListing? @relation(fields: [serviceListingId], references: [id])
+  serviceListingId String?
+}
+
+model ServiceProvider {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  service   String?
+  rate      Float?
+}
+
+model ServiceListing {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  title       String?
+  price       Float?
+  provider    String?
+  description String?
+  bookings    Booking[]
+  reviews     Review[]
+}
+
+model Booking {
+  id               String             @id @default(cuid())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  bookingDate      DateTime?
+  status           EnumBookingStatus?
+  user             User?              @relation(fields: [userId], references: [id])
+  userId           String?
+  serviceListing   ServiceListing?    @relation(fields: [serviceListingId], references: [id])
+  serviceListingId String?
+}
+
+model User {
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  firstName String?
+  lastName  String?
+  username  String    @unique
+  email     String?   @unique
+  password  String
+  roles     Json
+  bookings  Booking[]
+  reviews   Review[]
+}
+
+enum EnumBookingStatus {
+  Option1
+}
